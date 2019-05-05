@@ -38,33 +38,27 @@ int main()
 {
     int nx = 800;
     int ny = 600;
-    int ns = 50;
+    int ns = 20;
     ofstream out;
     out.open("image.ppm");
 
 
-    int Nobj = 4;
+    int Nobj = 2;
     Hitable *list[Nobj];
-    /*list[0] = new Sphere(Vec3(0.,0.5,1), 0.5, new Dielectric(1.5));
-    list[1] = new Sphere(Vec3(-8.,8.0,-1), 8.0, new Metal(Vec3(0.752, 0.752, 0.752), 0.));
-    //list[2] = new Sphere(Vec3(0., -100.5, -1.), 100, new Lambertian(Vec3(0.8,0.8,0.)));
-    list[2] = new Sphere(Vec3(0., -1000., 0.), 1000, new Lambertian(Vec3(0.2, 0.2, 0.2)));
-    list[3] = new Sphere(Vec3(0., 1.2, -2.), 1.2, new Lambertian(Vec3(0.8, 0.2, 0.2)));
-    //list[2] = new Sphere(Vec3(1., 0., -1.), 0.5, new Metal(Vec3(0.8,0.6,0.2), 0.0));
-    //list[3] = new Sphere(Vec3(-1., 0., -1.), 0.5, new Dielectric(1.5));
-    //list[4] = new Sphere(Vec3(-1., 0., -1.), -0.45, new Dielectric(1.5));
+    list[0] = new Sphere(Vec3(0., -1000., 0.), 1000, new Lambertian(Vec3(0.5, 0.5, 0.5)));
+    Vec3 center(0.,2.5,0.);
+    list[1] = new Moving_sphere(center, center + Vec3(0.,2.,0.), 0., 1.5, 1.2, new Lambertian(Vec3(1.,0.,0.)));
+    
+
     Hitable *world = new Hitable_list(list, Nobj);
-    */
 
-    Hitable *world = new_random_scene();
-
-    Vec3 lookfrom(17., 12., 0.);
-    Vec3 lookat(0., 0., -1);
-    double dist_to_focus = 30.;
+    Vec3 lookfrom(13., 2., 3.);
+    Vec3 lookat(0., 0., 0.);
+    double dist_to_focus = 10.;
     double aperture = 0.0;
 
     Camera cam(lookfrom, lookat, Vec3(0., 1., 0.), 70., double(nx)/double(ny),
-                                                     aperture, dist_to_focus);
+                                        aperture, dist_to_focus, 0., 1.);
 
     out << "P3\n" << nx << " " << ny << "\n255\n";
     for(int j = ny ; j >= 0 ; --j)
@@ -111,13 +105,15 @@ Hitable *random_scene()
             {
                 if(choose_mat < 0.8) //diffuse
                 {
-                    list[i++] = new Sphere(center, 0.2,
+                    list[i++] = new Moving_sphere(center, center+Vec3(0.,0.5*drand48(),0.),
+                     0.,1.,0.2, 
                          new Lambertian(Vec3(drand48()*drand48(),
                                      drand48()*drand48(), drand48()*drand48())));
                 }
                 else if(choose_mat < 0.95) //metal
                 {
-                    list[i++] = new Sphere(center, 0.2,
+                    list[i++] = new Moving_sphere(center, center+Vec3(0.,0.5*drand48(),0.),
+                    0.,1., 0.2,
                          new Metal(Vec3(0.5 * (1. + drand48()),
                                      0.5 * (1. + drand48()), 0.5 * (1. + drand48())), 0.5*drand48()));
                     

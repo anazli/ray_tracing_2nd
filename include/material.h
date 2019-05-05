@@ -50,7 +50,7 @@ class Lambertian : public Material {
                              Vec3& attenuation, Ray& scattered) const 
         {
             Vec3 target = rec.p + rec.normal + randomVectorOnUnitSphere();
-            scattered = Ray(rec.p, target - rec.p);
+            scattered = Ray(rec.p, target - rec.p, r_in.time());
             attenuation = albedo;
             return true;
         }
@@ -73,7 +73,7 @@ class Metal : public Material {
                              Vec3& attenuation, Ray& scattered) const 
         {
             Vec3 reflected = reflect(getUnitVectorOf(r_in.direction()), rec.normal);
-            scattered = Ray(rec.p, reflected + fuzz * randomVectorOnUnitSphere());
+            scattered = Ray(rec.p, reflected + fuzz * randomVectorOnUnitSphere(), r_in.time());
             attenuation = albedo;
             return (dot(scattered.direction(), rec.normal) > 0);
         }
@@ -121,9 +121,9 @@ class Dielectric : public Material {
                 reflect_prob = 1.;
 
             if(drand48() < reflect_prob)
-                scattered = Ray(rec.p, reflected);
+                scattered = Ray(rec.p, reflected, r_in.time());
             else
-                scattered = Ray(rec.p, refracted);
+                scattered = Ray(rec.p, refracted, r_in.time());
 
             return true;
         }

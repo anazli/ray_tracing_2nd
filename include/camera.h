@@ -18,8 +18,10 @@ class Camera {
     public:
 
         Camera(Vec3 lookfrom, Vec3 lookat, Vec3 vup, double vfov, double aspect,
-                        double aperture, double focus_dist) { // vfov is top to bottom in degrees
+                        double aperture, double focus_dist, double t0, double t1) { // vfov is top to bottom in degrees
 
+            time0 = t0;
+            time1 = t1;
             lens_radius = aperture/2.;
             double theta = vfov * M_PI /180.;
             double half_height = tan(theta/2.);
@@ -38,8 +40,9 @@ class Camera {
         {
             Vec3 rd = lens_radius * random_in_unit_disk();
             Vec3 offset = u * rd.x() + v * rd.y();
+            double time = time0 + drand48() * (time1 - time0);
             return Ray(origin + offset, lower_left_corner + s*horizontal +
-                                         t*vertical - origin - offset);
+                                         t*vertical - origin - offset, time);
         }
 
         Vec3 origin;
@@ -47,6 +50,7 @@ class Camera {
         Vec3 horizontal;
         Vec3 vertical;
         Vec3 u, v, w;
+        double time0, time1;
         double lens_radius;
 };
 
