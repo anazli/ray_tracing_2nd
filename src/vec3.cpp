@@ -68,11 +68,13 @@ istream& operator>>(istream& in, Vec3& v)
     double x,y,z;
     in >> x >> y >> z;
     v.setXYZ(x,y,z);
+    return in;
 }
 
 ostream& operator<<(ostream& out, const Vec3& v)
 {
     out << "(" << v.x() << "," << v.y() << "," << v.z() << ")";
+    return out;
 }
 
 
@@ -180,9 +182,7 @@ double Vec3::magnitude()const
 
 Vec3 getUnitVectorOf(const Vec3& v)
 {
-    if(v.magnitude() == 0.)
-        throw "Division by zero!";
-    return v/v.magnitude();
+    return v/(v.magnitude() + 1.E-7);
 }
 
 Vec3 randomVector(const double& a, const double& b)

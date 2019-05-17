@@ -21,7 +21,10 @@ FLAGS= $(DEBUG) -std=$(ISO)
 LFLAGS=-I$(ODIR)
 
 #Linking object files
-_DEPS = vec3.h ray.h hitable.h sphere.h hitable_list.h
+_DEPS = vec3.h ray.h hitable.h sphere.h hitable_list.h cylinder.h plane.h \
+	    disk.h cone.h material.h texture.h camera.h aabb.h bvh_node.h \
+		rectangle.h translate.h box.h constant_medium.h moving_sphere.h \
+		surface_texture.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ1 = main.o vec3.o 

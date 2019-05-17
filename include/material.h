@@ -5,6 +5,7 @@ struct hit_record;
 
 #include "ray.h"
 #include "hitable.h"
+#include "texture.h"
 
 double schlick(double cosine, double ref_idx)
 {
@@ -38,6 +39,8 @@ class Material {
 
         virtual bool scatter(const Ray& r_in, const hit_record& rec,
                              Vec3& attenuation, Ray& scattered) const = 0;
+        virtual Vec3 emitted(double u, double v, const Vec3& p) const
+        {return Vec3(0,0,0);}
 
 };
 
@@ -45,17 +48,18 @@ class Lambertian : public Material {
 
     public:
 
-        Lambertian(const Vec3& a) : albedo(a){}
+        Lambertian(){}
+        Lambertian(Texture *a) : albedo(a){}
         virtual bool scatter(const Ray& r_in, const hit_record& rec,
                              Vec3& attenuation, Ray& scattered) const 
         {
             Vec3 target = rec.p + rec.normal + randomVectorOnUnitSphere();
-            scattered = Ray(rec.p, target - rec.p, r_in.time());
-            attenuation = albedo;
+            scattered = Ray(rec.p, target - rec.p);
+            attenuation = albedo->value(0., 0., rec.p);
             return true;
         }
 
-        Vec3 albedo;
+        Texture *albedo;
 };
 
 class Metal : public Material {
@@ -73,7 +77,7 @@ class Metal : public Material {
                              Vec3& attenuation, Ray& scattered) const 
         {
             Vec3 reflected = reflect(getUnitVectorOf(r_in.direction()), rec.normal);
-            scattered = Ray(rec.p, reflected + fuzz * randomVectorOnUnitSphere(), r_in.time());
+            scattered = Ray(rec.p, reflected + fuzz * randomVectorOnUnitSphere());
             attenuation = albedo;
             return (dot(scattered.direction(), rec.normal) > 0);
         }
@@ -121,14 +125,43 @@ class Dielectric : public Material {
                 reflect_prob = 1.;
 
             if(drand48() < reflect_prob)
-                scattered = Ray(rec.p, reflected, r_in.time());
+                scattered = Ray(rec.p, reflected);
             else
-                scattered = Ray(rec.p, refracted, r_in.time());
+                scattered = Ray(rec.p, refracted);
 
             return true;
         }
 
     double ref_idx;      
+};
+
+class Diffuse_light : public Material {
+    public:
+        Diffuse_light(Texture *a): emit(a){}
+        virtual bool scatter(const Ray& r_in, const hit_record& rec,
+                             Vec3& attenuation, Ray& scattered) const
+                             {return false;} 
+        virtual Vec3 emitted(double u, double v, const Vec3& p) const
+        {return emit->value(u,v,p);}
+
+    private:
+        Texture *emit;
+};
+
+
+class Isotropic : public Material {
+    public:
+        Isotropic(Texture *a): albedo(a){}
+        virtual bool scatter(const Ray& r_in, const hit_record& rec,
+                             Vec3& attenuation, Ray& scattered) const
+        {
+            scattered = Ray(rec.p, randomVectorOnUnitSphere());
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            return true;
+        }
+    private:
+        Texture *albedo;
+
 };
 
 #endif

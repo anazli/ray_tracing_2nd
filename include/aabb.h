@@ -19,8 +19,8 @@ class aabb {
         {
             //There's one problem! I don't use vector or array to implement
             // the Vec3 class. So I can't iterate otherwise over a vec's components
-            std::vector<double> vorigin{r.origin.x(),r.origin.y(),r.origin.z()};
-            std::vector<double> vdirect{r.direction.x(),r.direction.y(),r.direction.z()};
+            std::vector<double> vorigin{r.origin().x(),r.origin().y(),r.origin().z()};
+            std::vector<double> vdirect{r.direction().x(),r.direction().y(),r.direction().z()};
             std::vector<double> vmin{_min.x(), _min.y(), _min.z()};
             std::vector<double> vmax{_max.x(), _max.y(), _max.z()};
             for(int i = 0 ; i < 3 ; ++i)

@@ -11,6 +11,7 @@ class Hitable_list : public Hitable {
         Hitable_list(Hitable **l, int n): list(l), list_size(n) {}
         virtual bool hit(const Ray& r, double t_min, double t_max,
                                                      hit_record& rec) const;
+        
         virtual bool bounding_box(double t0, double t1, aabb& box) const;
 
         Hitable **list;
@@ -47,7 +48,7 @@ bool Hitable_list::bounding_box(double t0, double t1, aabb& box) const
 
     for(int i = 1 ; i < list_size ; ++i)
     {
-        if(list[0]->bounding_box(t0, t1, temp_box))
+        if(list[i]->bounding_box(t0, t1, temp_box)) //changed list[0] to list[1]
         {
             box = surrounding_box(box, temp_box);
         }
