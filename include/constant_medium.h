@@ -43,12 +43,12 @@ bool Constant_medium::hit(const Ray& r, double t_min, double t_max, hit_record& 
             if(rec1.t < 0)
                 rec1.t = 0;
             
-            double distance_inside_boundary = (rec2.t - rec1.t) * r.direction().magnitude();
+            double distance_inside_boundary = (rec2.t - rec1.t) * r.direction().length();
             double hit_distance = -(1./density)*log(drand48());
             if(hit_distance < distance_inside_boundary)
             {
                 if(db)std::cerr << "hit_distance = " << hit_distance << "\n";
-                rec.t = rec1.t + hit_distance / r.direction().magnitude();
+                rec.t = rec1.t + hit_distance / r.direction().length();
                 if(db)std::cerr << "rec.t = " << rec.t << "\n";
                 rec.p = r.point_at_parameter(rec.t);
                 if(db)std::cerr << "rec.p = " << rec.p << "\n";

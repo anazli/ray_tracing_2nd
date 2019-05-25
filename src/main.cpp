@@ -24,6 +24,9 @@
 
 using namespace std;
 
+Hitable *scene2();
+Hitable *scene1();
+Hitable *scene();
 Hitable *final();
 Hitable *cornell();
 Hitable *cornell_box();
@@ -50,7 +53,7 @@ Vec3 color(const Ray& r, Hitable *world, int depth)
         }
     }
     else
-        return Vec3(0,0,0);
+        return Vec3(0.08, 0.08, 0.17);
     //Vec3 unit_direction = getUnitVectorOf(r.direction());
     //double t = 0.5 * (unit_direction.y() + 1.);
     //return (1. - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.2, 0.7, 1.0);
@@ -60,19 +63,19 @@ int main()
 {
     int nx = 800;
     int ny = 600;
-    int ns = 50;
+    int ns = 20;
     ofstream out;
     out.open("image.ppm");
 
-    Hitable *world = spheres();
+    Hitable *world = scene2();
 
     //Vec3 lookfrom(278., 278., -800.);
     //Vec3 lookat(278., 278., 0.);
-    Vec3 lookfrom(0,1,5);
+    Vec3 lookfrom(0,2.,9);
     Vec3 lookat(0,0,0);
-    double dist_to_focus = 20.;
+    double dist_to_focus = 10.;
     double aperture = 0.0;
-    double vfov = 60.;
+    double vfov = 70.;
 
     Camera cam(lookfrom, lookat, Vec3(0., 1., 0.), vfov, double(nx)/double(ny),
                                                      aperture, dist_to_focus, 0., 1.);
@@ -105,6 +108,76 @@ int main()
 
     return 0;
 }
+
+Hitable *scene2()
+{
+    int Nobj = 20;
+    int i = 0;
+    Hitable **list = new Hitable*[Nobj];
+    Material *light = new Diffuse_light(new Constant_texture(Vec3(0.7, 0.1, 0.1)));
+    Texture *pertext = new Noise_texture(2.);
+
+    list[i++] = new Plane(Vec3(0.,0.,0.), Vec3(0., 1., 0.) , new Lambertian(new Constant_texture(Vec3(0.4,0.4,0.4))));
+    list[i++] = new Sphere(Vec3(0., 6., -7.), 6., new Lambertian(pertext));
+
+    Vec3 center1(2., 0., 0.);
+    Vec3 center2(0., 0., 0.);
+    Vec3 center3(-2., 0., 0.);
+    for(i = 1 ; i < 18 ; i += 6)
+    {
+        double r = 0.2;
+        double height = 2.;
+        
+        list[i+1] = new Cylinder(center1, height, 0.1, new Dielectric(1.5));
+        list[i+2] = new Sphere(Vec3(center1[0], height+r, center1[2]), r, light);
+        list[i+3] = new Cylinder(center2, 2., 0.1, new Dielectric(1.5));
+        list[i+4] = new Sphere(Vec3(center2[0], height+r, center2[2]), r, light);
+        list[i+5] = new Cylinder(center3, 2., 0.1, new Dielectric(1.5));
+        list[i+6] = new Sphere(Vec3(center3[0], height+r, center3[2]), r, light);
+        center1[2] += 3;
+        center2[2] += 3;
+        center3[2] += 3;
+    }
+
+    return new Hitable_list(list, Nobj);
+}
+Hitable *scene1()
+{
+    int Nobj = 8;
+    Hitable **list = new Hitable*[Nobj];
+    int i = 0;
+    Material *ground = new Lambertian( new Constant_texture(Vec3(0.48, 0.83, 0.53)) );
+    Material *light = new Diffuse_light(new Constant_texture(Vec3(0.5, 0.5, 0.5)));
+    list[i++] = new xz_rect(-2, 2, -2, 2, 0, light);
+    list[i++] = new Plane(Vec3(0.,0.,0.), Vec3(0., 1., 0.) , ground);
+
+}
+
+Hitable *scene()
+{
+    int Nobj = 7;
+    Hitable **list = new Hitable*[Nobj];
+    int i = 0;
+    Texture *pertext = new Noise_texture(2.);
+    Material *red = new Lambertian(new Constant_texture(Vec3(0.65, 0.05, 0.05)));
+    Material *white = new Lambertian(new Constant_texture(Vec3(0.73, 0.73, 0.73)));
+    Material *light = new Diffuse_light(new Constant_texture(Vec3(0.5, 0.5, 0.5)));
+    list[i++] = new Plane(Vec3(0.,0.,0.), Vec3(0., 1., 0.) , new Lambertian(new Constant_texture(Vec3(0.4,0.4,0.4))));
+    list[i++] = new Sphere(Vec3(0.6, 1.9, 0.6), 0.7, new Dielectric(1.5));
+    Hitable *b1 = new Translate(new Rotate_y(new Box(Vec3(0, 0, 0), Vec3(1.2, 1.2, 1.2), light), 10), Vec3(0, 0, 0));
+    list[i++] = b1;
+    list[i++] = new Cone(Vec3(-2.2, 0., -1.), 4.0, 1.5, new Metal(Vec3(0.3,0.3,0.3), 0.01));
+    //list[i++] = new Constant_medium(b1, 0.01, new Constant_texture(Vec3(1.,1.,0.)));
+    light = new Diffuse_light(new Constant_texture(Vec3(0.1, 0.1, 2.7)));
+    list[i++] = new Sphere(Vec3(-1.3, 0.3, 3.), 0.3, light);
+    list[i++] = new Sphere(Vec3(6., 5., -6.), 5., new Lambertian(pertext));
+    light = new Diffuse_light(new Constant_texture(Vec3(0.1, 2.7, 0.1)));
+    list[i++] = new Sphere(Vec3(1., 0.3, 3.), 0.3, light);
+    //Hitable *b2 = new Translate(new Rotate_y(new Box(Vec3(0., 0, 0.), Vec3(0.6, 0.6, 0.6), white), -18), Vec3(0.7, 0, 2.7));
+    //list[i++] = new Constant_medium(b2, 0.8, new Constant_texture(Vec3(0.7,0.1,0.1)));
+    return new Hitable_list(list, Nobj);
+}
+
 
 Hitable *final() {
     int nb = 20;
@@ -165,7 +238,7 @@ Hitable *cornell()
 
     list[i++] = new Flip_normals(new yz_rect(0, 555, 0, 555, 555, green));
     int nx, ny, nn;
-    unsigned char *tex_data = stbi_load("julia.jpg", &nx, &ny, &nn, 0);
+    unsigned char *tex_data = stbi_load("images/julia.jpg", &nx, &ny, &nn, 0);
     Material *emat =  new Lambertian(new image_texture(tex_data, nx, ny));
     list[i++] = new yz_rect(0, 555, 0, 555, 0, emat);
     list[i++] = new xz_rect(113, 443, 127, 432, 554, light);
@@ -174,7 +247,7 @@ Hitable *cornell()
     list[i++] = new Flip_normals(new xy_rect(0, 555, 0, 555, 555, white));
     Hitable *b1 = new Translate(new Rotate_y(new Box(Vec3(0, 0, 0), Vec3(165, 165, 165), white), -18), Vec3(130, 0, 65));
     Hitable *b2 = new Translate(new Rotate_y(new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), white), 15), Vec3(265, 0, 295));
-    list[i++] = new Constant_medium(b1, 0.01, new Constant_texture(Vec3(1.,1.,0.)));
+    list[i++] = new Sphere(Vec3(0,0.5,0), 0.5, emat);
     list[i++] = new Constant_medium(b2, 0.01, new Constant_texture(Vec3(0.,0.,0.)));
 
     return new Hitable_list(list, i);
@@ -223,9 +296,9 @@ Hitable *spheres()
     Hitable **list = new Hitable*[Nobj];
     Texture *pertext = new Noise_texture(4);
     unsigned char *tex_data = stbi_load("julia.jpg", &nx, &ny, &nn, 0);
-    Material *emat =  new Lambertian(new image_texture(tex_data, nx, ny));
+    //Material *emat =  new Lambertian(new image_texture(tex_data, nx, ny));
     list[i++] = new Sphere(Vec3(0.,-1000.,0.), 1000, new Lambertian(pertext));
-    list[i++] = new Sphere(Vec3(0, 0.5, 0), 0.5, new Diffuse_light(new Constant_texture(Vec3(5,5,5))));
+    list[i++] = new Cylinder(Vec3(-1, 0.5, 1), 1.0, 0.5, new Diffuse_light(new Constant_texture(Vec3(5,5,5))));
     //Hitable *b = new Sphere(Vec3(3,1,0), 1, new Lambertian(new Constant_texture(Vec3(1,1,1))));
     //list[i++] = new Constant_medium(b, 0.06, new Constant_texture(Vec3(1,1,1)));
     return new Hitable_list(list, i);
@@ -256,7 +329,7 @@ Hitable *random_scene()
         {
             double choose_mat = drand48();
             Vec3 center(a + 0.9*drand48(), 0.2, b + 0.9*drand48());
-            if((center - Vec3(4., 0.2, 0.)).magnitude() > 0.9)
+            if((center - Vec3(4., 0.2, 0.)).length() > 0.9)
             {
                 if(choose_mat < 0.8) //diffuse
                 {

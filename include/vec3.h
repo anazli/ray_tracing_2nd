@@ -3,6 +3,7 @@
 
 #include<iostream>
 #include<random>
+#include<cassert>
 
 /*! \brief A simple 3D vector class.
  *
@@ -28,7 +29,7 @@ public:
 
     //! Copy Constructor. Creates a vector that is a copy
     //! of an existing vector provided as argument.
-    Vec3(const Vec3 &v):
+    Vec3(const Vec3& v):
     m_x{v.x()},
     m_y{v.y()},
     m_z{v.z()}
@@ -53,6 +54,30 @@ public:
     {setX(p1);setY(p2);setZ(p3);} //!< Every component gets a unique value.
 
 
+    double operator[](int i) const
+    {
+        assert(i >= 0 && i <= 2);
+        if(i == 0)return m_x;
+        if(i == 1)return m_y;
+        return m_z;
+    }
+
+    double& operator[](int i)
+    {
+        assert(i >= 0 && i <= 2);
+        if(i == 0)return m_x;
+        if(i == 1)return m_y;
+        return m_z;
+    }
+
+    Vec3& operator=(const Vec3& v)
+    {
+        m_x = v.x();
+        m_y = v.y();
+        m_z = v.z();
+        return *this;
+    }
+
     Vec3  operator+() const{return Vec3(m_x, m_y, m_z);}; //!< Overloaded unary (+) operator. Returns the same vector.
     Vec3  operator-() const{return Vec3(-m_x, -m_y, -m_z);} //!< Overloaded unary (-) operator. Returns the opposite vector.
 
@@ -66,12 +91,14 @@ public:
 
 
     Vec3& operator+=(const double& num); //!< Overloaded unary (+=) operator. Increments the vector's components by a value num.
+    Vec3& operator+=(const Vec3& v);
     Vec3& operator-=(const double& num); //!< Overloaded unary (-=) operator. Decrements the vector's components by a value num.
+    Vec3& operator-=(const Vec3& v);
     Vec3& operator*=(const double& num); //!< Overloaded unary (*=) operator. Multiplies the vector's components by a value num.
 
 
     Vec3& normalize(); //!< Makes the vector a unit vector of length one.
-    double magnitude()const; //!< Returns the length of the vector.
+    double length()const; //!< Returns the length of the vector.
 
 
 private:
@@ -104,7 +131,7 @@ std::istream& operator>>(std::istream& in, Vec3& v); //!< Overloaded binary (>>)
 std::ostream& operator<<(std::ostream&, const Vec3&); //!< Overloaded binary (<<) operator. Prints a vector's components to a stream.
 
 double dot(const Vec3&, const Vec3&); //!< The dot product of two vectors. Returns a number of type double.
-Vec3 cross(const Vec3& v1, const Vec3& v2); //!< The cross product of two vectors. Returns a vector perpendicular to the surface of them.
+Vec3 cross(const Vec3&, const Vec3&); //!< The cross product of two vectors. Returns a vector perpendicular to the surface of them.
 
 Vec3 getUnitVectorOf(const Vec3&); //!< Gets the unit vector of a vector without changing the provided vector.
 Vec3 randomVector(const double& a = 0., const double& b = 1.); //!< Returns a vector with uniformly random components in the interval [a,b].
